@@ -74,7 +74,8 @@ pyenv activate myproject
 ## Installing Node with nvm
 
 `nvm` is installed under `$NVM_DIR` and sourced automatically in interactive and
-non-interactive bash shells via `BASH_ENV`:
+non-interactive Bash shells. `pyenv` is available in all shells through `PATH`;
+interactive shells also load its shims and virtualenv integration:
 
 ```bash
 nvm install --lts

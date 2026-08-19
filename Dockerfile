@@ -205,7 +205,10 @@ RUN curl -fsSL \
         https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh \
     | PROFILE=${BASH_ENV} bash \
     && echo '. /etc/profile.d/00-devtools.sh' >> ~/.bashrc \
-    && echo '. /etc/profile.d/00-devtools.sh' >> ${BASH_ENV} \
+    && echo "export NVM_DIR=\"\${NVM_DIR:-\$HOME/.nvm}\"" >> ${BASH_ENV} \
+    && echo "if [ -s \"\$NVM_DIR/nvm.sh\" ]; then" >> ${BASH_ENV} \
+    && echo "    . \"\$NVM_DIR/nvm.sh\"" >> ${BASH_ENV} \
+    && echo 'fi' >> ${BASH_ENV} \
     # Drop nvm's own git history/test fixtures: irrelevant at runtime, bloats image and vuln scans
     && rm -rf ${NVM_DIR}/.git ${NVM_DIR}/test
 

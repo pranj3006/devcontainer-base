@@ -41,7 +41,7 @@ check "curl is installed" 'command -v curl'
 check "pyenv is installed" 'command -v pyenv'
 check "pyenv-virtualenv plugin is present" '[ -d "$PYENV_ROOT/plugins/pyenv-virtualenv" ]'
 check "nvm is installed" 'source "$NVM_DIR/nvm.sh" && command -v nvm'
-check "python can be installed via pyenv" 'pyenv install --list | grep "3.12" >/dev/null'
+check "python can be installed via pyenv" 'pyenv install --list | grep -F "  3.12" >/dev/null'
 check "workspace directory exists" '[ -d /workspace ]'
 check "bash is the default shell" '[ "$SHELL" = "/bin/bash" ] || echo "$0" | grep bash >/dev/null'
 
