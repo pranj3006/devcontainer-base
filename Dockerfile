@@ -4,6 +4,7 @@ FROM debian:bookworm-slim
 # Build arguments
 # ============================================================
 
+# hadolint ignore=DL3064
 ARG USERNAME=devuser
 ARG USER_UID=1000
 ARG USER_GID=1000
@@ -55,6 +56,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # different Python versions.
 # ============================================================
 
+# Debian package versions are resolved from the current Bookworm repositories;
+# pinning every transitive build dependency would prevent normal security updates.
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Build tools
     build-essential \
@@ -162,18 +166,18 @@ RUN mkdir -p ${NVM_DIR} \
 # lifecycle hooks rely on.
 # ============================================================
 
-RUN echo 'export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"' > /etc/profile.d/00-devtools.sh \
-    && echo 'export PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"' >> /etc/profile.d/00-devtools.sh \
+RUN echo "export PYENV_ROOT=\"\${PYENV_ROOT:-\$HOME/.pyenv}\"" > /etc/profile.d/00-devtools.sh \
+    && echo "export PATH=\"\$PYENV_ROOT/bin:\$PYENV_ROOT/shims:\$PATH\"" >> /etc/profile.d/00-devtools.sh \
     && echo 'if command -v pyenv >/dev/null 2>&1; then' >> /etc/profile.d/00-devtools.sh \
-    && echo '    eval "$(pyenv init - --no-rehash bash)"' >> /etc/profile.d/00-devtools.sh \
-    && echo '    eval "$(pyenv virtualenv-init -)"' >> /etc/profile.d/00-devtools.sh \
+    && echo "    eval \"\$(pyenv init - --no-rehash bash)\"" >> /etc/profile.d/00-devtools.sh \
+    && echo "    eval \"\$(pyenv virtualenv-init -)\"" >> /etc/profile.d/00-devtools.sh \
     && echo 'fi' >> /etc/profile.d/00-devtools.sh \
-    && echo 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"' >> /etc/profile.d/00-devtools.sh \
-    && echo 'if [ -s "$NVM_DIR/nvm.sh" ]; then' >> /etc/profile.d/00-devtools.sh \
-    && echo '    . "$NVM_DIR/nvm.sh"' >> /etc/profile.d/00-devtools.sh \
+    && echo "export NVM_DIR=\"\${NVM_DIR:-\$HOME/.nvm}\"" >> /etc/profile.d/00-devtools.sh \
+    && echo "if [ -s \"\$NVM_DIR/nvm.sh\" ]; then" >> /etc/profile.d/00-devtools.sh \
+    && echo "    . \"\$NVM_DIR/nvm.sh\"" >> /etc/profile.d/00-devtools.sh \
     && echo 'fi' >> /etc/profile.d/00-devtools.sh \
-    && echo 'if [ -s "$NVM_DIR/bash_completion" ]; then' >> /etc/profile.d/00-devtools.sh \
-    && echo '    . "$NVM_DIR/bash_completion"' >> /etc/profile.d/00-devtools.sh \
+    && echo "if [ -s \"\$NVM_DIR/bash_completion\" ]; then" >> /etc/profile.d/00-devtools.sh \
+    && echo "    . \"\$NVM_DIR/bash_completion\"" >> /etc/profile.d/00-devtools.sh \
     && echo 'fi' >> /etc/profile.d/00-devtools.sh
 
 # ============================================================
@@ -199,15 +203,9 @@ ENV BASH_ENV=/home/${USERNAME}/.bash_env
 
 RUN curl -fsSL \
         https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh \
-        | PROFILE=${BASH_ENV} bash
-
-# Interactive non-login shells source ~/.bashrc; reuse the same system-wide init.
-RUN echo '. /etc/profile.d/00-devtools.sh' >> ~/.bashrc
-
-# Non-interactive non-login shells (e.g. `docker exec`) source BASH_ENV directly.
-RUN echo '. /etc/profile.d/00-devtools.sh' >> ${BASH_ENV}
-
-
+    | PROFILE=${BASH_ENV} bash \
+    && echo '. /etc/profile.d/00-devtools.sh' >> ~/.bashrc \
+    && echo '. /etc/profile.d/00-devtools.sh' >> ${BASH_ENV}
 
 # ============================================================
 # Default container settings
@@ -218,6 +216,6 @@ WORKDIR /workspace
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=5 \
-    CMD bash -lc 'command -v pyenv >/dev/null && command -v nvm >/dev/null && command -v git >/dev/null' || exit 1
+    CMD ["bash", "-lc", "command -v pyenv >/dev/null && command -v nvm >/dev/null && command -v git >/dev/null || exit 1"]
 
 CMD ["bash"]
