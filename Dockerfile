@@ -217,7 +217,7 @@ WORKDIR /workspace
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=5 \
     CMD bash -lc 'command -v pyenv >/dev/null && command -v nvm >/dev/null && command -v git >/dev/null' || exit 1
 
 CMD ["bash"]
