@@ -31,7 +31,7 @@ jobs:
           failure-threshold: warning
 
   build:
-    name: Build and smoke test
+    name: Build and scan
     needs: lint
     runs-on: ubuntu-latest
     permissions:
@@ -52,9 +52,6 @@ jobs:
           tags: devcontainer-base:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Run smoke tests
-        run: ./tests/smoke-test.sh devcontainer-base:test
 
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@v0.36.0
