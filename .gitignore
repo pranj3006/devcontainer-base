@@ -1,0 +1,13 @@
+# Corporate certificates and private keys must never be committed.
+*.pem
+*.crt
+*.cer
+*.key
+
+# Local environment files commonly contain credentials.
+.env
+.env.*
+
+# Editor and operating-system artifacts.
+.vscode/
+.DS_Store

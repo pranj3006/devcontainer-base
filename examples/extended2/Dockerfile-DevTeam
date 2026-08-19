@@ -1,0 +1,30 @@
+FROM devpranj/devcontainer-base:latest
+
+# Set user and group IDs to match host machine
+ARG USER_NAME
+ARG USER_DISP_NAME
+ARG USER_EMAIL
+
+ENV UNAME=$USER_NAME
+ENV UDNAME=$USER_DISP_NAME
+ENV UEMAIL=$USER_EMAIL
+
+WORKDIR /app
+
+USER devuser
+
+
+# Set up Git configuration
+RUN git config --global user.name $UDNAME
+RUN git config --global user.email $UEMAIL
+
+EXPOSE 5000
+EXPOSE 5001
+EXPOSE 5002
+EXPOSE 4000
+
+# After Setup Run Tox for each env to test
+# Create new env to build package, and install twine, wheel and setuptools
+# Run to build python setup.py sdist bdist_wheel
+# Run to check twine check dist/*
+CMD ["bash"]

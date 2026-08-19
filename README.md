@@ -50,6 +50,7 @@ Two supported approaches are provided in [`examples/`](examples/):
 |---|---|---|
 | **Direct** | The base image already has everything you need | [`examples/direct`](examples/direct) |
 | **Extended** | You need extra OS packages or build-time customization | [`examples/extended`](examples/extended) |
+| **Extended with Compose** | Your project also runs services such as PostgreSQL or Redis | [`examples/extended2`](examples/extended2) |
 
 Open either example folder in VS Code and choose **Reopen in Container**, or run the
 **Dev Containers: Reopen in Container** command.
@@ -102,6 +103,73 @@ RUN bash -lc 'nvm install --lts'
 ```
 
 See the full [`examples/extended`](examples/extended) sample for a working reference.
+
+## Offline and Restricted Networks
+
+If a workstation cannot pull the image whenever a Dev Container is rebuilt, save a
+copy after an approved pull:
+
+```bash
+docker pull devpranj/devcontainer-base:latest
+docker save devpranj/devcontainer-base:latest | gzip > devcontainer-base-latest.tar.gz
+```
+
+Move the archive through your approved internal file-transfer process. On the target
+workstation, load it into the local Docker daemon:
+
+```bash
+gunzip -c devcontainer-base-latest.tar.gz | docker load
+docker tag devpranj/devcontainer-base:latest devcontainer-base:offline
+```
+
+Use the local tag in a derived Dockerfile to prevent Docker from contacting Docker
+Hub during the build:
+
+```dockerfile
+FROM devcontainer-base:offline
+```
+
+The archive must be reloaded after Docker Desktop data is reset or the local image is
+removed. Do not run image-prune commands that delete unused images if the local copy
+must remain available.
+
+## Corporate Certificates
+
+Some corporate networks intercept HTTPS traffic. Configure the corporate root CA in
+the Docker host or Docker Desktop first; this lets Docker trust Docker Hub and obtain
+its authentication token. Do not disable TLS verification or configure Docker Hub as
+an insecure registry.
+
+For a Linux Docker Engine host, where `company-root-ca.pem` is the CA file:
+
+```bash
+sudo install -D -m 0644 company-root-ca.pem \
+  /usr/local/share/ca-certificates/company-root-ca.crt
+sudo update-ca-certificates
+sudo install -D -m 0644 company-root-ca.pem \
+  /etc/docker/certs.d/registry-1.docker.io/ca.crt
+sudo systemctl restart docker
+```
+
+If the failure names `auth.docker.io`, install the same CA at
+`/etc/docker/certs.d/auth.docker.io/ca.crt` and restart Docker. For Docker Desktop,
+import the CA into the operating system's trusted-root certificate store, then restart
+Docker Desktop.
+
+To trust the same CA only inside a project-specific derived image, keep the PEM file
+outside version control and add this before switching to `devuser`:
+
+```dockerfile
+FROM devpranj/devcontainer-base:1.0.0
+
+USER root
+COPY company-root-ca.pem /usr/local/share/ca-certificates/company-root-ca.crt
+RUN update-ca-certificates
+USER devuser
+```
+
+This changes trust for tools running *inside* the container. It does not fix Docker's
+host-side pull authentication; the host or Docker Desktop must trust the CA separately.
 
 ## Supported Platforms
 
@@ -162,9 +230,11 @@ sure to append rather than replace it.
 `nvm` is loaded via `BASH_ENV`, which only applies to `bash` shells. Ensure your
 `RUN`/`postCreateCommand` invocations use `bash -lc "..."` rather than `sh -c "..."`.
 
-**Permission denied writing to `/workspace`**
-Confirm your bind-mounted host directory is owned by (or writable by) UID/GID
-`1000`, matching the container's `devuser`.
+**Permission denied on a bind-mounted workspace**
+For Dev Containers, set `"remoteUser": "devuser"` and
+`"updateRemoteUserUID": true` in `devcontainer.json`, then use **Dev Containers:
+Rebuild Container**. This aligns `devuser` with the host UID/GID when the container
+is created. Do not use a broad `chown -R` on a bind-mounted workspace.
 
 ## Contributing
 

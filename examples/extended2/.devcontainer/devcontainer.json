@@ -1,0 +1,46 @@
+{
+"name":"Dockerzied Development Container",
+"dockerComposeFile":[
+    "../dev-docker-compose.yml",
+    "docker-compose.yml"
+],
+"service": "dockerize_devlopment_myproject_app",
+"workspaceFolder":"/app/",
+"remoteUser": "devuser",
+"updateRemoteUserUID": true,
+"extensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.pyright",
+    "ms-python.vscode-pylint",
+    "ms-python.black-formatter",
+    "ms-python.isort",
+    "GitHub.copilot-chat",
+    "ms-python.sort",
+    "flake8.flake8",
+    "dbaeumer.vscode-eslint",
+    "aaron-bond.better-comments",
+    "esbenp.prettier-vscode",
+    "joaompinto.vscode-graphviz",
+    "tushortz.python-extended-snippets",
+    "davidanson.vscode-markdownlint",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "ms-azuretools.vsccode-docker",
+    "formulahendry.docker-explorer",
+    "eamodio.gitlens",
+    "ms-python.pylint",
+    "rangav.vscode-thunder-client",
+    "bardlc.vscode-tailwindcss",
+    "ms-python.flake8",
+    "charliermarsh.ruff"
+],
+"forwardPorts": [
+    5000,
+    5001,
+    5002,
+    4000,
+    8087
+],
+"postCreateCommand": "echo 'Setup Completed'"
+
+}

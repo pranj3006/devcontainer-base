@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  dockerize_devlopment_myproject_app:
+    volumes:
+      - ..:/workspaces:cached
+    
+    command: /bin/sh -c "while sleep 1000; do :; done"
