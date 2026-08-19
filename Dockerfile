@@ -1,0 +1,223 @@
+FROM debian:bookworm-slim
+
+# ============================================================
+# Build arguments
+# ============================================================
+
+ARG USERNAME=devuser
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+ARG PYENV_VERSION=2.8.1
+ARG NVM_VERSION=0.40.6
+
+# ============================================================
+# OCI image metadata
+# ============================================================
+
+LABEL org.opencontainers.image.title="devcontainer-base" \
+      org.opencontainers.image.description="Reusable Debian-based Dev Container base image with pyenv and nvm" \
+      org.opencontainers.image.source="https://github.com/<GITHUB_USERNAME>/devcontainer-base" \
+      org.opencontainers.image.documentation="https://github.com/<GITHUB_USERNAME>/devcontainer-base/blob/main/README.md" \
+      org.opencontainers.image.licenses="MIT"
+
+# ============================================================
+# Environment
+# ============================================================
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# pyenv
+ENV PYENV_ROOT=/home/${USERNAME}/.pyenv
+
+# nvm
+ENV NVM_DIR=/home/${USERNAME}/.nvm
+
+# Make pyenv available globally
+ENV PATH=${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}
+
+# ============================================================
+# Shell
+# ============================================================
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# ============================================================
+# System dependencies
+#
+# These are required mainly so that pyenv can compile
+# different Python versions.
+# ============================================================
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build tools
+    build-essential \
+    make \
+    gcc \
+    g++ \
+    \
+    # General development tools
+    git \
+    curl \
+    wget \
+    ca-certificates \
+    gnupg \
+    unzip \
+    zip \
+    jq \
+    pkg-config \
+    \
+    # Editors / utilities
+    vim \
+    nano \
+    less \
+    procps \
+    sudo \
+    \
+    # Python build dependencies
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libncurses-dev \
+    xz-utils \
+    tk-dev \
+    libffi-dev \
+    liblzma-dev \
+    libgdbm-dev \
+    libnss3-dev \
+    uuid-dev \
+    \
+    # PostgreSQL development/client tools
+    libpq-dev \
+    postgresql-client \
+    \
+    # Useful networking/debugging tools
+    iputils-ping \
+    net-tools \
+    dnsutils \
+    \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================================
+# Create development user
+# ============================================================
+
+RUN groupadd \
+        --gid ${USER_GID} \
+        ${USERNAME} \
+    && useradd \
+        --uid ${USER_UID} \
+        --gid ${USER_GID} \
+        --create-home \
+        --shell /bin/bash \
+        ${USERNAME} \
+    && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" \
+        > /etc/sudoers.d/${USERNAME} \
+    && chmod 0440 /etc/sudoers.d/${USERNAME}
+
+
+# ============================================================
+# Install pyenv
+# ============================================================
+
+RUN git clone \
+        --branch v${PYENV_VERSION} \
+        --depth 1 \
+        https://github.com/pyenv/pyenv.git \
+        ${PYENV_ROOT} \
+    && chown -R ${USERNAME}:${USERNAME} ${PYENV_ROOT}
+
+# Install pyenv-virtualenv
+RUN git clone \
+        --branch v1.2.4 \
+        --depth 1 \
+        https://github.com/pyenv/pyenv-virtualenv.git \
+        ${PYENV_ROOT}/plugins/pyenv-virtualenv \
+    && chown -R ${USERNAME}:${USERNAME} \
+        ${PYENV_ROOT}/plugins/pyenv-virtualenv
+
+# ============================================================
+# Install nvm
+# ============================================================
+
+RUN mkdir -p ${NVM_DIR} \
+    && chown -R ${USERNAME}:${USERNAME} ${NVM_DIR}
+
+# ============================================================
+# System-wide shell init (root)
+#
+# Debian's /etc/profile unconditionally resets PATH for login
+# shells, which would otherwise wipe out the pyenv/nvm PATH set
+# via ENV above. Dropping a script in /etc/profile.d/ ensures
+# pyenv and nvm are available in *both* login and non-login
+# shells (interactive or not), which many CI and Dev Container
+# lifecycle hooks rely on.
+# ============================================================
+
+RUN echo 'export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"' > /etc/profile.d/00-devtools.sh \
+    && echo 'export PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"' >> /etc/profile.d/00-devtools.sh \
+    && echo 'if command -v pyenv >/dev/null 2>&1; then' >> /etc/profile.d/00-devtools.sh \
+    && echo '    eval "$(pyenv init - --no-rehash bash)"' >> /etc/profile.d/00-devtools.sh \
+    && echo '    eval "$(pyenv virtualenv-init -)"' >> /etc/profile.d/00-devtools.sh \
+    && echo 'fi' >> /etc/profile.d/00-devtools.sh \
+    && echo 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"' >> /etc/profile.d/00-devtools.sh \
+    && echo 'if [ -s "$NVM_DIR/nvm.sh" ]; then' >> /etc/profile.d/00-devtools.sh \
+    && echo '    . "$NVM_DIR/nvm.sh"' >> /etc/profile.d/00-devtools.sh \
+    && echo 'fi' >> /etc/profile.d/00-devtools.sh \
+    && echo 'if [ -s "$NVM_DIR/bash_completion" ]; then' >> /etc/profile.d/00-devtools.sh \
+    && echo '    . "$NVM_DIR/bash_completion"' >> /etc/profile.d/00-devtools.sh \
+    && echo 'fi' >> /etc/profile.d/00-devtools.sh
+
+# ============================================================
+# Switch to development user
+# ============================================================
+
+USER ${USERNAME}
+
+WORKDIR /workspace
+
+# ============================================================
+# Configure Bash environment
+#
+# BASH_ENV is important because Dev Containers and other
+# tooling frequently execute non-interactive bash shells.
+# ============================================================
+
+ENV BASH_ENV=/home/${USERNAME}/.bash_env
+
+# ============================================================
+# Install nvm
+# ============================================================
+
+RUN curl -fsSL \
+        https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh \
+        | PROFILE=${BASH_ENV} bash
+
+# Interactive non-login shells source ~/.bashrc; reuse the same system-wide init.
+RUN echo '. /etc/profile.d/00-devtools.sh' >> ~/.bashrc
+
+# Non-interactive non-login shells (e.g. `docker exec`) source BASH_ENV directly.
+RUN echo '. /etc/profile.d/00-devtools.sh' >> ${BASH_ENV}
+
+
+
+# ============================================================
+# Default container settings
+# ============================================================
+
+WORKDIR /workspace
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD bash -lc 'command -v pyenv >/dev/null && command -v nvm >/dev/null && command -v git >/dev/null' || exit 1
+
+CMD ["bash"]

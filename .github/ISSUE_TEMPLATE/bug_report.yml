@@ -1,0 +1,41 @@
+name: Bug Report
+description: Report a problem with the devcontainer-base image
+labels: ["bug"]
+body:
+  - type: input
+    id: image-tag
+    attributes:
+      label: Image tag/digest
+      placeholder: "docker.io/<DOCKERHUB_USERNAME>/devcontainer-base:1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Host platform
+      placeholder: "linux/amd64, macOS (Apple Silicon), Windows + WSL2, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      render: shell

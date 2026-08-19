@@ -1,0 +1,23 @@
+{
+  "name": "devcontainer-base (extended)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+
+  "remoteUser": "devuser",
+  "workspaceFolder": "/workspace",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "forwardPorts": [8000]
+}

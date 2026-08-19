@@ -1,0 +1,25 @@
+{
+  "name": "devcontainer-base (direct)",
+  "image": "docker.io/<DOCKERHUB_USERNAME>/devcontainer-base:latest",
+
+  "remoteUser": "devuser",
+  "workspaceFolder": "/workspace",
+
+  "features": {},
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "postCreateCommand": "pyenv install --skip-existing 3.12.4 && pyenv global 3.12.4 && nvm install --lts",
+
+  "forwardPorts": [8000]
+}
