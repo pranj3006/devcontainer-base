@@ -6,7 +6,7 @@ body:
     id: image-tag
     attributes:
       label: Image tag/digest
-      placeholder: "docker.io/<DOCKERHUB_USERNAME>/devcontainer-base:1.0.0"
+      placeholder: "docker.io/devpranj/devcontainer-base:1.0.0"
     validations:
       required: true
   - type: input

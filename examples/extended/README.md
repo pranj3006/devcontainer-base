@@ -10,7 +10,7 @@ need additional system packages, build-time tool installation, or other customiz
    image tag you want to build on, for example:
 
    ```dockerfile
-   FROM docker.io/<DOCKERHUB_USERNAME>/devcontainer-base:1.0.0
+   FROM docker.io/devpranj/devcontainer-base:1.0.0
    ```
 
 3. Add any additional `apt-get install`, `pyenv install`, or `nvm install` steps your

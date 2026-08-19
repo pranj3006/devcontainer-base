@@ -1,8 +1,8 @@
 # devcontainer-base
 
-[![Build and Publish](https://github.com/<GITHUB_USERNAME>/devcontainer-base/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/<GITHUB_USERNAME>/devcontainer-base/actions/workflows/docker-publish.yml)
+[![Build and Publish](https://github.com/pranj3006/devcontainer-base/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/pranj3006/devcontainer-base/actions/workflows/docker-publish.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Docker Pulls](https://img.shields.io/docker/pulls/<DOCKERHUB_USERNAME>/devcontainer-base)](https://hub.docker.com/r/<DOCKERHUB_USERNAME>/devcontainer-base)
+[![Docker Pulls](https://img.shields.io/docker/pulls/devpranj/devcontainer-base)](https://hub.docker.com/r/devpranj/devcontainer-base)
 
 A lightweight, reusable Debian-based development container image with
 [`pyenv`](https://github.com/pyenv/pyenv) and [`nvm`](https://github.com/nvm-sh/nvm)
@@ -26,8 +26,8 @@ across any polyglot Python/Node.js project.
 Pull the image directly:
 
 ```bash
-docker pull <DOCKERHUB_USERNAME>/devcontainer-base:latest
-docker run --rm -it <DOCKERHUB_USERNAME>/devcontainer-base:latest bash
+docker pull devpranj/devcontainer-base:latest
+docker run --rm -it devpranj/devcontainer-base:latest bash
 ```
 
 Or reference it from a `.devcontainer/devcontainer.json`:
@@ -35,7 +35,7 @@ Or reference it from a `.devcontainer/devcontainer.json`:
 ```json
 {
   "name": "my-project",
-  "image": "<DOCKERHUB_USERNAME>/devcontainer-base:latest",
+  "image": "devpranj/devcontainer-base:latest",
   "remoteUser": "devuser"
 }
 ```
@@ -89,7 +89,7 @@ To add project-specific system packages or preinstall specific language versions
 build your own image `FROM` this one:
 
 ```dockerfile
-FROM <DOCKERHUB_USERNAME>/devcontainer-base:1.0.0
+FROM devpranj/devcontainer-base:1.0.0
 
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -133,7 +133,7 @@ Relevant environment variables set inside the container:
 
 ## Image Tags
 
-Published to [`<DOCKERHUB_USERNAME>/devcontainer-base`](https://hub.docker.com/r/<DOCKERHUB_USERNAME>/devcontainer-base) on Docker Hub:
+Published to [`devpranj/devcontainer-base`](https://hub.docker.com/r/devpranj/devcontainer-base) on Docker Hub:
 
 | Tag | Description |
 |---|---|

@@ -1,4 +1,4 @@
-FROM docker.io/<DOCKERHUB_USERNAME>/devcontainer-base:latest
+FROM docker.io/devpranj/devcontainer-base:latest
 
 # Switch to root to install additional system packages
 USER root

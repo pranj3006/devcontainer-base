@@ -1,6 +1,6 @@
 {
   "name": "devcontainer-base (direct)",
-  "image": "docker.io/<DOCKERHUB_USERNAME>/devcontainer-base:latest",
+  "image": "docker.io/devpranj/devcontainer-base:latest",
 
   "remoteUser": "devuser",
   "workspaceFolder": "/workspace",

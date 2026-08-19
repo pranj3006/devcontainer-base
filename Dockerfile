@@ -18,8 +18,8 @@ ARG NVM_VERSION=0.40.6
 
 LABEL org.opencontainers.image.title="devcontainer-base" \
       org.opencontainers.image.description="Reusable Debian-based Dev Container base image with pyenv and nvm" \
-      org.opencontainers.image.source="https://github.com/<GITHUB_USERNAME>/devcontainer-base" \
-      org.opencontainers.image.documentation="https://github.com/<GITHUB_USERNAME>/devcontainer-base/blob/main/README.md" \
+    org.opencontainers.image.source="https://github.com/pranj3006/devcontainer-base" \
+    org.opencontainers.image.documentation="https://github.com/pranj3006/devcontainer-base/blob/main/README.md" \
       org.opencontainers.image.licenses="MIT"
 
 # ============================================================

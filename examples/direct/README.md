@@ -10,7 +10,7 @@ directly in a Dev Container, with no local build step.
    point at the published image tag you want to use, for example:
 
    ```json
-   "image": "docker.io/<DOCKERHUB_USERNAME>/devcontainer-base:1.0.0"
+   "image": "docker.io/devpranj/devcontainer-base:1.0.0"
    ```
 
 3. Open the project folder in VS Code and select **Reopen in Container** when prompted
